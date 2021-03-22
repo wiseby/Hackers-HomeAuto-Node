@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { faArrowDown, faArrowLeft, faArrowRight, faCoffee, faEthernet, faLeaf, faMicrochip, faMobile, faServer } from '@fortawesome/free-solid-svg-icons';
+import { HttpclientService } from './httpclient.service';
 
 @Component({
   selector: 'app-root',
@@ -29,6 +30,11 @@ export class AppComponent {
     nodeName: new FormControl('', [Validators.required]),
     nodeAddress: new FormControl('', [Validators.minLength(5)]),
   });
+
+  constructor(private httpService: HttpclientService) {
+    
+    
+  }
 
   public onSubmit(): void {
     this.confForm.markAllAsTouched();
