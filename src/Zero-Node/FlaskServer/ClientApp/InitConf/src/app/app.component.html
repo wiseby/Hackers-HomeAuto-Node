@@ -1,0 +1,156 @@
+<div class="section">
+  <div class="container">
+    <h1 class="title is-4">Hackers-HomeAuto Node Configurations</h1>
+
+    <article class="message">
+      <div class="message-header">
+        <p>How To</p>
+        <button class="button" (click)="this.toggleHowTo()">
+          <span class="icon is-small"
+            ><fa-icon
+              [icon]="this.howToDropped ? faArrowLeft : faArrowDown"
+            ></fa-icon
+          ></span>
+        </button>
+      </div>
+      <ng-container *ngIf="howToDropped">
+        <div class="message-body">
+          <div class="block">
+            <p>Welcome to the node initiation wizard!</p>
+            <p>
+              Fill in all inputs to configure the node to be integrated to
+              Hackers-HomeAuto system.
+            </p>
+            <p>
+              Tooltips are available on all inputs. Just place the cursor over a
+              field to get a hint.
+            </p>
+          </div>
+        </div>
+      </ng-container>
+    </article>
+
+    <form [formGroup]="this.confForm" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label class="label">Server Address</label>
+        <div class="control has-icons-right">
+          <input
+            class="input"
+            type="text"
+            placeholder="8080"
+            formControlName="serverPort"
+          />
+          <span class="icon is-small is-right">
+            <fa-icon [icon]="faServer"></fa-icon>
+          </span>
+        </div>
+        <ng-container
+          *ngIf="
+            this.confForm.controls['serverAddress'].invalid &&
+            this.confForm.controls['serverAddress'].touched
+          "
+        >
+          <ng-container
+            *ngIf="
+              this.confForm.controls['serverAddress'].errors &&
+              this.confForm.controls['serverAddress'].errors.required
+            "
+          >
+            <p class="help is-danger">Server Address is required</p>
+          </ng-container>
+        </ng-container>
+      </div>
+
+      <div class="field">
+        <label class="label">Server Address</label>
+        <div class="control has-icons-right">
+          <input
+            class="input"
+            type="text"
+            placeholder="192.168.1.20"
+            formControlName="serverAddress"
+          />
+          <span class="icon is-small is-right">
+            <fa-icon [icon]="faServer"></fa-icon>
+          </span>
+        </div>
+        <ng-container
+          *ngIf="
+            this.confForm.controls['serverAddress'].invalid &&
+            this.confForm.controls['serverAddress'].touched
+          "
+        >
+          <ng-container
+            *ngIf="
+              this.confForm.controls['serverAddress'].errors &&
+              this.confForm.controls['serverAddress'].errors.required
+            "
+          >
+            <p class="help is-danger">Server Address is required</p>
+          </ng-container>
+        </ng-container>
+      </div>
+
+      <div class="field">
+        <label class="label">Node Name</label>
+        <div class="control has-icons-right">
+          <input
+            class="input"
+            type="text"
+            placeholder="Livingroom"
+            formControlName="nodeName"
+          />
+          <span class="icon is-small is-right">
+            <fa-icon [icon]="faMicrochip"></fa-icon>
+          </span>
+        </div>
+        <ng-container
+          *ngIf="
+            this.confForm.controls['nodeName'].invalid &&
+            this.confForm.controls['nodeName'].touched
+          "
+        >
+          <ng-container
+            *ngIf="
+              this.confForm.controls['nodeName'].errors &&
+              this.confForm.controls['nodeName'].errors.required
+            "
+          >
+            <p class="help is-danger">Node Name is required</p>
+          </ng-container>
+        </ng-container>
+      </div>
+
+      <div class="field">
+        <label class="label">Node Address</label>
+        <div class="control has-icons-right">
+          <input
+            class="input"
+            type="text"
+            placeholder="192.168.1.200"
+            formControlName="nodeAddress"
+          />
+          <span class="icon is-small is-right">
+            <fa-icon [icon]="faEthernet"></fa-icon>
+          </span>
+        </div>
+        <ng-container
+          *ngIf="
+            this.confForm.controls['nodeAddress'].invalid &&
+            this.confForm.controls['nodeAddress'].touched
+          "
+        >
+          <ng-container
+            *ngIf="
+              this.confForm.controls['nodeAddress'].errors
+            "
+          >
+            <p class="help is-danger">Node Address is required</p>
+          </ng-container>
+        </ng-container>
+      </div>
+
+      <button class="button" type="submit">Initiate</button>
+    </form>
+  </div>
+</div>

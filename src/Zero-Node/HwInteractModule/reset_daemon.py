@@ -5,6 +5,7 @@ from sys import argv
 
 args = argv
 ENVIRONMENT = ''
+running = True
 
 if(len(args) > 1):
     ENVIRONMENT = args[1]
@@ -16,21 +17,5 @@ redLed = LED(2)
 blueLed = LED(3)
 greenLed = LED(4)
 
-while(True):
-    print('Green')
+while(running):
     greenLed.toggle()
-    sleep(1)
-    greenLed.toggle()
-    sleep(1)
-
-    print('Blue')
-    blueLed.toggle()
-    sleep(1)
-    blueLed.toggle()
-    sleep(1)
-
-    print('Red')
-    redLed.toggle()
-    sleep(1)
-    redLed.toggle()
-    sleep(1)
