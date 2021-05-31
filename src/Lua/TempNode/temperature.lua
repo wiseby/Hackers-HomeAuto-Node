@@ -1,39 +1,19 @@
 -- ###############################################################
--- secrity.lua - functions to support reed switch magnetic door and
--- window normally-open, which will be part of a security system.
---
--- Note: these are just dumb sensors programmed to insert their
--- values into the local network MQTT queue (aka topic). The 
--- Raspberry Pi (either the one running the broker or another one)
--- has all the smarts about what to do with the data in the topic
--- queue.
---
--- Note 2: I'll be improving this code as I learn more about Lua.
--- I recommend the book "Programming in Lua" by Roberto
--- Ierusalimschy (one of the designers of Lua).
---
--- Phil Moyer
--- Adafruit
--- 
--- May 2016
---
--- This code is open source, released under the BSD license. All
--- redistribution must include this header.
+-- temperature.lua
+-- Simple script that reads a DHT sensor and publishes the result.
 -- ###############################################################
-
-
 -- ###############################################################
 -- Global variables and parameters.
 -- ###############################################################
-
-nodeId = "livingroom_temp"	-- a sensor identifier for this device
-tgtHost = "192.168.1.64"	-- target host (broker)
-tgtPort = 1883			-- target port (broker listening on)
-mqttUserID = "MQTT_USER_ID"		-- account to use to log into the broker
-mqttPass = "MQTT_USER_PASSWORD"		-- broker account password
-mqttTimeOut = 120		-- connection timeout
-dataInt = 1			-- data transmission interval in seconds
-topicQueue = "/" .. nodeId	-- the MQTT topic queue to use
+clientId = "livingroom_dht" -- Identification for the device. Make it unique
+tgtHost = "192.168.1.64" -- target host (broker)
+tgtPort = 1883 -- target port (broker listening on) default 1883
+mqttTimeOut = 120 -- connection timeout
+eventTriggerTime = 10 -- data transmission interval in minutes
+topicQueue = "hha-server" -- topic to use. Broker intercepts on topic "hha-server"
+dhtPin = 4 -- Pin which the sensor is hooked up to. Read gpio module for correct definitions
+temperature = "" -- variable to store sensor temperature
+humidity = "" -- variable to store sensor humidity
 
 -- You shouldn't need to change anything below this line. -Phil --
 
@@ -44,60 +24,74 @@ topicQueue = "/" .. nodeId	-- the MQTT topic queue to use
 -- Function pubEvent() publishes the sensor value to the defined queue.
 
 function pubEvent()
-	pubValue = "{\"node\":\"" .. sensorID .. "\"," .. "\"value\":\"Haha publishing!!\"}"		-- build buffer
-	print("Publishing to " .. topicQueue .. ": " .. pubValue)	-- print a status message
-	mqttBroker:publish(topicQueue, pubValue, 0, 0)	-- publish
+    readSensor()
+    jsonValues = "\"temperature\":\"" .. temperature .. "\",\"humidity\":\"" ..
+                     humidity .. "\""
+    pubValue = "{" .. jsonValues .. "}" -- build buffer
+    print("Publishing to " .. topicQueue .. ": " .. pubValue) -- print a status message
+    mqttBroker:publish(topicQueue, pubValue, 0, 0) -- publish
 end
-
 
 -- Reconnect to MQTT when we receive an "offline" message.
 
 function reconn()
-	print("Disconnected, reconnecting....")
-	conn()
+    print("Disconnected, reconnecting....")
+    conn()
 end
-
 
 -- Establish a connection to the MQTT broker with the configured parameters.
 
 function conn()
-	print("Making connection to MQTT broker")
-	mqttBroker:connect(tgtHost, tgtPort, false, function(client) print ("connected") end, function(client, reason) print("failed reason: "..reason) end)
+    print("Making connection to MQTT broker")
+    mqttBroker:connect(tgtHost, tgtPort, false,
+                       function(client) print("connected") end, function(client,
+                                                                         reason)
+        print("failed reason: " .. reason)
+    end)
 end
 
-
--- Call this first! --
--- makeConn() instantiates the MQTT control object, sets up callbacks,
--- connects to the broker, and then uses the timer to send sensor data.
--- This is the "main" function in this library. This should be called 
--- from init.lua (which runs on the ESP8266 at boot), but only after
--- it's been vigorously debugged. 
---
--- Note: once you call this from init.lua the only way to change the
--- program on your ESP8266 will be to reflash the NodeCMU firmware! 
+-- makeConn is triggered in init.lua when wifi has been established.
+-- This initializes a global MQTT Client and starts a alarm event that triggers
+-- reading sensor and publish event to broker.
 
 function makeConn()
-	-- Instantiate a global MQTT client object
-	print("Instantiating mqttBroker")
-	mqttBroker = mqtt.Client(sensorID, mqttTimeOut)
+    -- Instantiate a global MQTT client object
+    print("Instantiating mqttBroker")
+    mqttBroker = mqtt.Client(clientId, mqttTimeOut)
 
-	-- Set up the event callbacks
-	print("Setting up callbacks")
-	mqttBroker:on("connect", function(client) print ("connected") end)
-	mqttBroker:on("offline", reconn)
+    -- Set up the event callbacks
+    print("Setting up callbacks")
+    mqttBroker:on("connect", function(client) print("connected") end)
+    mqttBroker:on("offline", reconn)
 
-	-- Connect to the Broker
-	conn()
+    -- Connect to the Broker
+    conn()
 
-	-- Use the watchdog to call our sensor publication routine
-	-- every dataInt seconds to send the sensor data to the 
-	-- appropriate topic in MQTT.
-	tmr.create():alarm((dataInt * 1000), tmr.ALARM_SINGLE, pubEvent)
+    tmr.create():alarm((eventTriggerTime * 60000), tmr.ALARM_AUTO, pubEvent)
 end
 
+function readSensor()
+    status, temp, humi, temp_dec, humi_dec = dht.read(dhtPin)
+    if status == dht.OK then
+        print("Reading sensor...")
+        temperature = temp .. "." .. temp_dec
+        humidity = humi .. "." .. humi_dec
+        print("Temperature: " .. temperature)
+        print("Humidity: " .. humidity)
+
+        print(string.format("DHT Temperature:%d.%03d;Humidity:%d.%03d\r\n",
+                            math.floor(temp), temp_dec, math.floor(humi),
+                            humi_dec))
+
+    elseif status == dht.ERROR_CHECKSUM then
+        print("DHT Checksum error.")
+    elseif status == dht.ERROR_TIMEOUT then
+        print("DHT timed out.")
+    end
+end
 
 -- ###############################################################
 -- "Main"
 -- ###############################################################
 
--- No content. -prm
+-- No content
