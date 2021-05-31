@@ -1,6 +1,17 @@
 -- ###############################################################
 -- temperature.lua
 -- Simple script that reads a DHT sensor and publishes the result.
+-- 
+-- Modules required for this program:
+-- DHT
+-- file
+-- GPIO
+-- MQTT
+-- net
+-- node
+-- timer
+-- UART // For debugging
+-- Wifi
 -- ###############################################################
 -- ###############################################################
 -- Global variables and parameters.
@@ -14,8 +25,6 @@ topicQueue = "hha-server" -- topic to use. Broker intercepts on topic "hha-serve
 dhtPin = 4 -- Pin which the sensor is hooked up to. Read gpio module for correct definitions
 temperature = "" -- variable to store sensor temperature
 humidity = "" -- variable to store sensor humidity
-
--- You shouldn't need to change anything below this line. -Phil --
 
 -- ###############################################################
 -- Functions
@@ -55,7 +64,6 @@ end
 -- reading sensor and publish event to broker.
 
 function makeConn()
-    -- Instantiate a global MQTT client object
     print("Instantiating mqttBroker")
     mqttBroker = mqtt.Client(clientId, mqttTimeOut)
 
