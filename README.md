@@ -1,4 +1,4 @@
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/wiseby/Hackers-HomeAuto.Node/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/wiseby/Hackers-HomeAuto.Node/blob/LICENSE)
 
 # Hackers-HomeAuto.Node
 
